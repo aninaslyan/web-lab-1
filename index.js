@@ -75,14 +75,15 @@ function arrayChange(inputArray) {
     for (let i = 0; i + 1 < changedArr.length; i++) {
         const currentElement = changedArr[i];
         let nextElement = changedArr[i + 1];
+        const elementDiff = currentElement - nextElement;
 
-        if (currentElement - nextElement >= 0) {
-            if (currentElement - nextElement === 0) {
+        if (elementDiff >= 0) {
+            if (elementDiff === 0) {
                 moves++;
                 changedArr[i + 1]++;
             } else {
-                moves += currentElement - nextElement + 1;
-                changedArr[i + 1] += currentElement - nextElement + 1;
+                moves += elementDiff + 1;
+                changedArr[i + 1] += elementDiff + 1;
             }
         }
     }
