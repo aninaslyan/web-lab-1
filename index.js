@@ -1,27 +1,41 @@
 // 1
-function getTextLanguage(text) {
+function getTextLanguage(inputText) {
     let detectedLanguage;
     let detectedUnicodeRange;
 
-    if (!text) return 'No text typed';
+    if (!inputText) return 'No text typed';
 
-    for (let i = 0; i < text.length; i++) {
+    const restructuredList = Object.keys(unicodeList).reduce((acc, curr) => {
+        const range = curr.split('-');
+        const language = unicodeList[curr];
+        acc[language] = {
+            start: range[0],
+            end: range[1],
+            language,
+        }
+        return acc;
+    }, {});
+
+    for (let i = 0; i < inputText.length; i++) {
         if (detectedLanguage) {
-            if (!(text.charCodeAt(i) >= detectedUnicodeRange[0] && text.charCodeAt(i) <= detectedUnicodeRange[1])) {
+            if (!(compareRange(inputText, i, detectedUnicodeRange))) {
                 return 'You printed multiple languages';
             }
             continue;
         }
-        for (let j = 0; j < Object.keys(unicodeList).length; j++) {
-            const unicode = Object.keys(unicodeList)[j];
-            const range = unicode.split('-');
-            if (text.charCodeAt(i) >= range[0] && text.charCodeAt(i) <= range[1]) {
-                detectedLanguage = unicodeList[unicode];
+
+        const restructuredListValues = Object.values(restructuredList);
+
+        for (let j = 0; j < restructuredListValues.length; j++) {
+            const range = restructuredListValues[j];
+            if (compareRange(inputText, i, range)) {
+                detectedLanguage = range.language;
                 detectedUnicodeRange = range;
                 break;
             }
         }
     }
+    // todo do statistics
     return detectedLanguage;
 }
 
@@ -32,44 +46,49 @@ function palindromeRearranging(inputString) {
     let countOfOdd = 0;
 
     for (let i of inputString) {
-        if (obj.hasOwnProperty(i)) {
-            obj[i] = obj[i] + 1;
-        } else {
-            obj[i] = 1;
-        }
+        obj[i] = obj.hasOwnProperty(i) ? obj[i] + 1 : obj[i] = 1;
     }
 
     objArr = Object.values(obj);
 
     if (inputString.length % 2 !== 0) {
-        for (let i = 0; i < objArr.length; i++) {
-            if (objArr[i] % 2 !== 0) {
+        objArr.forEach(strCount => {
+            if (strCount % 2 !== 0) {
                 countOfOdd++;
             }
             if (countOfOdd > 1) {
                 return false;
             }
-        }
+        });
     } else {
         return objArr.every(val => val % 2 === 0);
     }
 
-    return true
+    return true;
 }
 
 // 3
 function arrayChange(inputArray) {
     let moves = 0;
+    let changedArr = [...inputArray];
 
-    for (let i = 0; i + 1 < inputArray.length; i++) {
-        if (inputArray[i] - inputArray[i + 1] >= 0)
-            if (inputArray[i] - inputArray[i + 1] === 0) {
+    for (let i = 0; i + 1 < changedArr.length; i++) {
+        const currentElement = changedArr[i];
+        let nextElement = changedArr[i + 1];
+
+        if (currentElement - nextElement >= 0) {
+            if (currentElement - nextElement === 0) {
                 moves++;
-                inputArray[i + 1]++;
+                changedArr[i + 1]++;
             } else {
-                moves += inputArray[i] - inputArray[i + 1] + 1;
-                inputArray[i + 1] += inputArray[i] - inputArray[i + 1] + 1;
+                moves += currentElement - nextElement + 1;
+                changedArr[i + 1] += currentElement - nextElement + 1;
             }
+        }
     }
-    return moves;
+
+    return {
+        changedArr,
+        moves
+    };
 }
